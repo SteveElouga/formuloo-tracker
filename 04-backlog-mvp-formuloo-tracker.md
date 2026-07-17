@@ -5,7 +5,7 @@
 |---|---|
 | **Produit** | Formuloo Tracker (mini Jira interne) |
 | **Type de document** | Backlog produit priorisé + plan de release MVP |
-| **Version** | 1.4 |
+| **Version** | 1.5 |
 | **Date** | 17/07/2026 |
 | **Équipe** | 1 développeur fullstack (solo) |
 | **Cadence** | Sprints de 2 semaines |
@@ -22,6 +22,7 @@
 | 1.2 | 17/07/2026 | Plateforme GitLab (au lieu de GitHub) : CI, registre et DoR Sprint 0 mis à jour (aligné DAT ADR-021). |
 | 1.3 | 17/07/2026 | Plateforme : décision finale GitHub (aligné DAT ADR-021) : CI GitHub Actions, registre ghcr.io, DoR Sprint 0. |
 | 1.4 | 17/07/2026 | Dépôt public (aligné DAT ADR-021 v1.5) : protection de branches gratuite ; DoR Sprint 0 mise à jour. |
+| 1.5 | 17/07/2026 | Ajout **FT-6b** (socle de mock frontend : MSW + schéma partagé + codegen + fixtures) pour l'indépendance du front en vue du split (DAT ADR-022) ; totaux S0 mis à jour (7 stories / 26 pts). |
 
 ---
 
@@ -78,6 +79,8 @@ Chaque story suit **le même cycle en 7 étapes** — c'est la définition opér
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+> **Socle de mock (FT-6b)** : le MOCK de l'étape 3 s'appuie sur **MSW** partagé — mêmes mocks en `ng serve` (mode mock), Jest et Playwright — plus les fixtures personas. Le frontend est ainsi développable et démontrable **sans backend** (indépendance en vue du split, DAT ADR-022). *(Note : « Apollo MockedProvider » cité dans le schéma ci-dessus est du vocabulaire React ; côté Angular, les tests unitaires purs utilisent `apollo-angular/testing`.)*
+
 ### 2.1 Pyramide de tests et outillage (100 % gratuit)
 
 | Niveau | Outils | Cible |
@@ -114,7 +117,7 @@ Chaque story suit **le même cycle en 7 étapes** — c'est la définition opér
 
 | Epic | Nom | EF couvertes | Stories | Points | Sprints visés |
 |---|---|---|---|---|---|
-| **FT-E0** | [Enabler] Socle technique & squelette marchant | ENF, DAT | 6 | 21 | S0 |
+| **FT-E0** | [Enabler] Socle technique & squelette marchant | ENF, DAT | 7 | 26 | S0 |
 | **FT-E1** | Comptes & authentification | EF-1 | 5 | 18 | S1 |
 | **FT-E2** | Projets, membres & rôles | EF-2, §7 [R2] | 6 | 21 | S2 |
 | **FT-E3** | Tickets — création & consultation | EF-3 (cœur), EF-4 | 7 | 24 | S3 |
@@ -127,7 +130,7 @@ Chaque story suit **le même cycle en 7 étapes** — c'est la définition opér
 | **FT-E10** | Automatisations pré-câblées | EF-10 | 2 | 6 | S8 |
 | **FT-E11** | Import/Export & administration | EF-11 | 5 | 18 | S9 |
 | **FT-E12** | Durcissement, recette & mise en service | EF-12, ENF, [R2 §10] | 5 | 13 | S9–S10 |
-| | **Total** | | **65** | **~222** | **10 sprints** |
+| | **Total** | | **66** | **~227** | **10 sprints** |
 
 > La vélocité réelle tranchera : si elle s'établit à 22+, le MVP tient en 9 sprints ; à 18, prévoir 11. Le plan (§5) garde le sprint 10 comme amortisseur.
 
@@ -191,6 +194,7 @@ Format de chaque story : **ID · Titre** — story 3C — critères d'acceptatio
 | FT-4 | **Gateway GraphQL minimal** — En tant que développeur front, je veux un gateway Django/Strawberry exposant `{ sante }` et le socle JWT afin d'avoir le point d'entrée du contrat. | `/graphql` répond ; requête sans JWT → 401 ; avec JWT Keycloak valide → 200 ; spans OTel émis. | *Front d'abord* : test Angular d'un service Apollo mocké ; puis pytest du middleware JWT (token expiré, mauvaise signature, ok). | FT-2 | 3 |
 | FT-5 | **Squelette svc-issues + tranche verticale `creerTicket`** — En tant que Membre, je veux créer un ticket minimal (résumé seul) depuis une page Angular afin de prouver la chaîne complète. | Depuis le navigateur : saisie d'un résumé → mutation `creerTicket` → gRPC `CreateIssue` → ligne en base avec clé `FORM-1` → événement `issue.created` publié → consommé par un worker stub ; **la trace unique navigateur→worker est visible dans Tempo** ; logs corrélés par trace_id. | Cycle complet §2 : (1) test composant formulaire ; (2) contrat `.graphql` ; (3) mock vert ; (4) test résolveur ; (5) tests RPC + RG-020 (statut initial) + séquence de clé (extrait Gherkin EF-3.2) ; (6) E2E Playwright. | FT-3, FT-4 | 5 |
 | FT-6 | **Gabarit de service réutilisable** — En tant que développeur, je veux un template de service Django+gRPC (logging JSON, OTel, outbox, tests) afin de créer les services suivants en < 1 h. | `cookiecutter` (ou script) générant un service qui passe la CI sans modification ; outbox + publication RabbitMQ incluses et testées. | Test du template : générer `svc-demo`, sa suite de tests passe. | FT-5 | 2 |
+| FT-6b | **Socle de mock frontend** — [Enabler] En tant que développeur front, je veux MSW + le schéma GraphQL partagé + le codegen + des fixtures personas afin de développer, démontrer et tester l'UI **sans backend** (et préparer le split — DAT ADR-022). | Schéma SDL publié dans `/contracts/graphql` ; **GraphQL Code Generator** produit types + opérations ; **MSW** sert les queries en `ng serve` (mode mock), Jest et Playwright ; fixtures Amina/Serge/Diane/Kevin + projet `FORM` + tickets + 1 sprint ; vérif CI des opérations front contre le SDL. | `ng serve` en mode mock affiche l'app sans backend ; une query mockée rend les fixtures ; E2E Playwright vert en mode mock. | FT-4 | 5 |
 
 ### FT-E1 — Comptes & authentification (Sprint 1 — 18 pts)
 
@@ -317,7 +321,7 @@ Format de chaque story : **ID · Titre** — story 3C — critères d'acceptatio
 
 | Sprint | Objectif de sprint (démontrable) | Stories | Pts |
 |---|---|---|---|
-| **S0** | « La chaîne complète fonctionne : un ticket créé depuis le navigateur est tracé jusqu'à Grafana » | FT-1→6 | 21 |
+| **S0** | « La chaîne complète fonctionne : un ticket créé depuis le navigateur est tracé jusqu'à Grafana ; le front tourne aussi en mode mock (sans backend) » | FT-1→6, FT-6b | 26 |
 | **S1** | « Toute l'équipe peut se connecter, sans limite de comptes » | FT-7→11 | 18 |
 | **S2** | « Les projets existent, avec rôles et permissions réels » (fini le tout-le-monde-peut-tout de Jira Free) | FT-12→17 | 21 |
 | **S3** | « On crée, consulte, édite et fait avancer des tickets structurés » | FT-18→24 | 24 |

@@ -6,7 +6,7 @@
 | **Produit** | Formuloo Tracker (mini Jira interne) |
 | **Type de document** | Document d'Architecture Technique (DAT) |
 | **Structure** | Inspirée du modèle **arc42** + ADR (Architecture Decision Records) |
-| **Version** | 1.5 |
+| **Version** | 1.6 |
 | **Date** | 17/07/2026 |
 | **Statut** | Draft — soumis à validation |
 | **Documents parents** | `01-analyse-fonctionnalites-jira-et-mvp.md` [R1], `02-specification-fonctionnelle-formuloo-tracker.md` [R2], `04-backlog-mvp-formuloo-tracker.md` [R4], `Formuloo Tracker.html` (maquette) [R5] |
@@ -22,6 +22,7 @@
 | 1.3 | 17/07/2026 | Formuloo | Plateforme : GitLab au lieu de GitHub (ADR-021) — protection de branches gratuite sur dépôt privé ; §11 (CI/registre) et §12 (dépendances) mis à jour. |
 | 1.4 | 17/07/2026 | Formuloo | Plateforme : décision finale **GitHub** (ADR-021 réécrit) ; §11/§12 revenus à GitHub Actions / ghcr.io / Dependabot. Protection de branches sur dépôt privé = GitHub Pro ou dépôt public, sinon hooks locaux. |
 | 1.5 | 17/07/2026 | Formuloo | Dépôt **public** (ADR-021) : protection de branches gratuite ⇒ E1 applicable côté serveur sans coût ; §11 mis à jour. |
+| 1.6 | 17/07/2026 | Formuloo | ADR-022 : indépendance du frontend (schéma-first + mock MSW) en vue du split post-MVP ; structure `/contracts` ; outillage front (MSW, GraphQL Code Generator) au §16.2. |
 
 ---
 
@@ -122,10 +123,10 @@ Chaque décision est tracée au format court : contexte → décision → consé
 - **Décision** : les **mêmes images Docker** (multi-stage, non-root, tags immuables) servent aux deux phases. Douze facteurs respectés : configuration par variables d'environnement uniquement, logs sur stdout, services sans état (état = PostgreSQL/MinIO/RabbitMQ).
 - **Conséquences** : ✔ migration k3s = écriture des manifests/Helm, zéro refonte applicative.
 
-### ADR-009 — Monorepo avec contrats protobuf partagés
-- **Contexte** : 6 dépôts séparés = friction pour une petite équipe ; les contrats gRPC doivent être la source de vérité.
-- **Décision** : **monorepo** Git : `/protos` (contrats, versionnés), `/services/*`, `/frontend`, `/deploy` (compose, helm), `/docs`. Génération de code protobuf en CI.
-- **Conséquences** : ✔ atomicité des changements de contrat ; ✖ pipeline CI à filtrer par dossier.
+### ADR-009 — Monorepo avec contrats partagés
+- **Contexte** : 6 dépôts séparés = friction pour une petite équipe ; les contrats (gRPC et GraphQL) doivent être la source de vérité.
+- **Décision** : **monorepo** Git : `/protos` (contrats gRPC), `/contracts/graphql` (schéma GraphQL publié), `/services/*`, `/frontend`, `/deploy` (compose, helm), `/docs`. Génération de code (protobuf, types GraphQL) en CI.
+- **Conséquences** : ✔ atomicité des changements de contrat ; ✖ pipeline CI à filtrer par dossier. **Conçu pour le split post-MVP** : frontend et backend seront extraits en dépôts distincts (équipes séparées) ; le **schéma GraphQL est la frontière d'intégration** et le frontend est prévu pour tourner de façon autonome (voir ADR-022).
 
 > **ADR-010 → ADR-020 (ajoutés en v1.1)** — décisions issues de la session de cadrage, complétant les précédentes sans les contredire.
 
@@ -189,6 +190,11 @@ Chaque décision est tracée au format court : contexte → décision → consé
 - **Décision** : **GitHub, dépôt public** — la **protection de branches est gratuite**, donc E1 est **pleinement applicable côté serveur** sans coût. CI **GitHub Actions** (minutes illimitées sur dépôt public), **GitHub Container Registry (ghcr.io)**, suivi des dépendances **Dependabot**. Terminologie : **PR** (Pull Request), équivalente à la « MR » des règles de `MEMORY.md`. Le script `scripts/setup-github.sh` applique la protection de `main` et `develop`.
 - **Portée « public »** : seul le **code source** est public ; les **données applicatives restent auto-hébergées et privées** (l'auto-hébergement de [R2] est inchangé). Aucun secret dans Git (`MEMORY.md` S1/S2). Un passage ultérieur en **privé** resterait possible, mais exigerait alors **GitHub Pro** pour conserver la protection.
 - **Conséquences** : ✔ E1 opposable côté serveur, **coût nul** (CT-6 respecté), minutes CI illimitées ; ✔ Actions / ghcr.io / Dependabot natifs ; ✖ code source visible publiquement (assumé) — prévoir un fichier `LICENSE` avant diffusion large.
+
+### ADR-022 — Indépendance du frontend : schéma-first + couche de mock (MSW)
+- **Contexte** : après le MVP, **frontend et backend seront repris par des équipes distinctes, dans des dépôts séparés**. Le frontend doit pouvoir être développé, exécuté, démontré et testé **sans backend** — au MVP (avant que les services existent, cf. méthode frontend-driven du backlog §2) comme après le split.
+- **Décision** : le frontend dépend du **schéma GraphQL** (contrat), jamais d'un backend qui tourne. (1) Le **schéma SDL** est généré depuis le gateway et publié comme artefact versionné dans `/contracts/graphql/schema.graphql`. (2) **GraphQL Code Generator** produit les types et opérations typées du front à partir du SDL. (3) **MSW (Mock Service Worker)** avec handlers GraphQL fournit une **couche de mock unique** réutilisée en `ng serve` (mode mock, bascule `environment.apiMode`), en tests Jest et en E2E Playwright. (4) Des **fixtures réalistes** calquées sur les personas ([R2] §3.2) et la maquette ([R5]) constituent le jeu de données de démo. (5) Une vérification CI valide les opérations du front contre le SDL (anti-dérive mock ↔ API).
+- **Conséquences** : ✔ le frontend build / tourne / se teste **sans aucun backend** ; ✔ `/frontend` autonome ⇒ extraction en dépôt séparé quasi triviale au split ; ✔ chaque story démontrable avant l'implémentation du service ; ✖ discipline : garder les mocks fidèles au SDL (vérif CI) et le SDL comme unique contrat. Un **serveur de mock GraphQL autonome** (`graphql-yoga` + `@graphql-tools/mock`) est **repoussé au split**, si un endpoint réseau devient nécessaire.
 
 ---
 
@@ -641,7 +647,7 @@ Grâce à l'ADR-008 (12 facteurs, mêmes images, état externalisé), **aucune m
 
 Angular 18+ · Django 5.x (LTS) · Python 3.12 · Strawberry GraphQL Django · grpcio + protobuf (buf pour la gestion des contrats) · PostgreSQL 16 · RabbitMQ 3.13 · Redis 7 · MinIO (dernière stable) · Keycloak 25+ · Grafana 11 · Prometheus 2.x · Loki 3.x · Tempo 2.x · Grafana Alloy · Traefik 3 · k3s (phase 2).
 
-**Frontend & outillage (ajout v1.1, à figer au démarrage)** : PrimeNG (preset Aura, `@primeng/themes`) + PrimeIcons · Apollo Angular · Angular Signals · Tiptap (`ngx-tiptap`) · Transloco · pnpm · Node 20 LTS · uv (Python) · Taskfile · Jest (`jest-preset-angular`) + Angular Testing Library · Playwright · pytest + pytest-django + grpcio-testing + testcontainers · k6 · Conventional Commits + commitlint.
+**Frontend & outillage (ajout v1.1, à figer au démarrage)** : PrimeNG (preset Aura, `@primeng/themes`) + PrimeIcons · Apollo Angular · **GraphQL Code Generator** (types + opérations) · **MSW** (mocks GraphQL dev/test/E2E) · Angular Signals · Tiptap (`ngx-tiptap`) · Transloco · pnpm · Node 20 LTS · uv (Python) · Taskfile · Jest (`jest-preset-angular`) + Angular Testing Library · Playwright · pytest + pytest-django + grpcio-testing + testcontainers · k6 · Conventional Commits + commitlint.
 
 ### 16.3 Coût total de la stack
 
