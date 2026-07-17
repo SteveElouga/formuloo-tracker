@@ -1,0 +1,56 @@
+# ─── Secrets & environnement (MEMORY.md S1/S2) ─────────────
+.env
+.env.*
+!.env.example
+*.local
+secrets/
+*.pem
+*.key
+*.p12
+
+# ─── Node / Angular / pnpm ─────────────────────────────────
+node_modules/
+.pnpm-store/
+frontend/dist/
+frontend/.angular/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+.nx/
+
+# ─── Python / Django / uv ──────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.uv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+staticfiles/
+media/
+
+# ─── Protobuf généré (généré en CI — ADR-009) ──────────────
+*_pb2.py
+*_pb2_grpc.py
+*_pb2.pyi
+
+# ─── Docker / données locales ──────────────────────────────
+deploy/**/data/
+deploy/**/volumes/
+*.log
+
+# ─── IDE / OS ──────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ─── Divers projet ─────────────────────────────────────────
+_to_delete/

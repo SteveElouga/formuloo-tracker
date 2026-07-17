@@ -1,0 +1,44 @@
+# Contexte de build minimal (voir DAT §9.2 — images multi-stage, non-root)
+
+# Git & gouvernance
+.git/
+.gitignore
+.githooks/
+.github/
+
+# Secrets (jamais dans une image)
+.env
+.env.*
+!.env.example
+
+# Node
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/
+**/htmlcov/
+**/.coverage
+
+# Documentation & méta (inutiles à l'exécution)
+docs/
+*.md
+!README.md
+Formuloo Tracker.html
+_to_delete/
+scripts/
+
+# Données locales & logs
+deploy/**/data/
+deploy/**/volumes/
+*.log
+.DS_Store

@@ -1,0 +1,42 @@
+name: CI
+# Pipeline de départ (grandit en FT-1 : lint, buf, tests, build images).
+# À référencer comme "required status check" dans la protection de branches (FT-1).
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  garde-fous:
+    name: Garde-fous PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cible de PR conforme (seule develop -> main)
+        run: |
+          if [ "${{ github.base_ref }}" = "main" ] && [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "✖ Une PR vers 'main' ne peut provenir que de 'develop' (MEMORY.md R6) : ${{ github.head_ref }} -> ${{ github.base_ref }}"
+            exit 1
+          fi
+          echo "✓ Cible de PR conforme (${{ github.head_ref }} -> ${{ github.base_ref }})."
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Messages de commit (Conventional Commits)
+        run: |
+          git fetch --no-tags --depth=100 origin "${{ github.base_ref }}"
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: .+'
+          bad="$(git log --format='%s' "origin/${{ github.base_ref }}..HEAD" | grep -vE '^(Merge |Revert )' | grep -vE "$pattern" || true)"
+          if [ -n "$bad" ]; then
+            echo "✖ Commit(s) non conforme(s) aux Conventional Commits :"
+            echo "$bad"
+            exit 1
+          fi
+          echo "✓ Messages de commit conformes."
+
+      - name: Placeholder
+        run: echo "CI de départ — lint (ruff/eslint), buf, tests (pytest/jest) et build d'images arrivent en FT-1."
