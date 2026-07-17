@@ -10,12 +10,17 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   [ -z "${remote_ref:-}" ] && continue
   target="${remote_ref#refs/heads/}"
 
-  # R2 — jamais de push direct sur main/develop (les fusions passent par une MR)
+  # R2 — jamais de push direct sur main/develop (les fusions passent par une PR),
+  #      SAUF la création initiale de la branche sur le remote (bootstrap : remote_sha == zéro).
   for p in $protected; do
     if [ "$target" = "$p" ]; then
-      echo "✖ [pre-push] Push direct interdit sur '$p' (MEMORY.md R2)."
-      echo "  → Les intégrations vers main/develop passent EXCLUSIVEMENT par une MR."
-      exit 1
+      if [ "$remote_sha" = "$zero" ]; then
+        echo "ℹ [pre-push] Création initiale de '$p' sur le remote (bootstrap) — autorisée."
+      else
+        echo "✖ [pre-push] Push direct interdit sur '$p' (MEMORY.md R2)."
+        echo "  → Les intégrations vers main/develop passent EXCLUSIVEMENT par une PR."
+        exit 1
+      fi
     fi
   done
 
