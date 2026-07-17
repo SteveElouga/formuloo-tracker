@@ -1,0 +1,10 @@
+# buf — module des contrats gRPC (source de vérité, ADR-009). FT-1.
+version: v2
+modules:
+  - path: .
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

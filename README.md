@@ -4,7 +4,7 @@
 
 Formuloo Tracker est un « mini-Jira » auto-hébergé qui remplace Jira Cloud (plan Free) sans ses limitations. Application web (Angular + PrimeNG), architecture microservices (Django + gRPC), API GraphQL, 100 % open source.
 
-> **Statut : amorçage (avant FT-1).** Le dépôt est en cours d'initialisation. Ce README décrit la cible et la mise en route prévue. Voir l'avancement dans `CONTEXT.md` §4.
+> **Statut : amorçage (avant FT-1).** Le dépôt est en cours d'initialisation. Ce README décrit la cible et la mise en route prévue. Voir l'avancement dans `docs/CONTEXT.md` §4.
 
 ---
 
@@ -25,7 +25,7 @@ Formuloo Tracker est un « mini-Jira » auto-hébergé qui remplace Jira Cloud (
 
 ## Aperçu
 
-Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires, pièces jointes, historique), workflow & board Kanban, backlog & sprints, recherche, rapports (burndown, vélocité), notifications, automatisations pré-câblées, et import CSV depuis Jira. Interface **en français**, **responsive** (desktop 1440 px / mobile 390 px), pensée pour une **connectivité instable**. Détails : `CONTEXT.md`.
+Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires, pièces jointes, historique), workflow & board Kanban, backlog & sprints, recherche, rapports (burndown, vélocité), notifications, automatisations pré-câblées, et import CSV depuis Jira. Interface **en français**, **responsive** (desktop 1440 px / mobile 390 px), pensée pour une **connectivité instable**. Détails : `docs/CONTEXT.md`.
 
 ## Stack technique
 
@@ -126,10 +126,10 @@ Grafana expose 7 dashboards (vue d'ensemble, par service, gateway/UX, PostgreSQL
 
 ## Documentation
 
-- [`CONTEXT.md`](./CONTEXT.md) — contexte projet complet
+- [`docs/CONTEXT.md`](./docs/CONTEXT.md) — contexte projet complet
 - [`MEMORY.md`](./MEMORY.md) — **règles opératoires inviolables**
 - `docs/01…04` — analyse, spécification (SFD), architecture (DAT), backlog
-- `Formuloo Tracker.html` — maquette haute-fidélité (référence UI)
+- `docs/Formuloo Tracker.html` — maquette haute-fidélité (référence UI)
 
 ## Sécurité & secrets
 
@@ -145,4 +145,4 @@ Projet **interne à Formuloo**. Données auto-hébergées et propriété exclusi
 
 ---
 
-*Pour comprendre le « pourquoi » et l'architecture : `CONTEXT.md`. Pour les règles de contribution : `MEMORY.md`.*
+*Pour comprendre le « pourquoi » et l'architecture : `docs/CONTEXT.md`. Pour les règles de contribution : `MEMORY.md`.*

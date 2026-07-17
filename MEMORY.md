@@ -105,4 +105,4 @@ Référence complète dans les documents du projet ; résumé pour recall imméd
 
 ---
 
-*Fichier lié : `CONTEXT.md` (contexte projet), `README.md` (prise en main), et les documents `01`→`04` + la maquette. Toute modification de ce règlement passe par une MR dédiée validée par le propriétaire.*
+*Fichier lié : `docs/CONTEXT.md` (contexte projet), `README.md` (prise en main), et les documents `docs/01`→`04` + la maquette (dans `docs/`). Toute modification de ce règlement passe par une MR dédiée validée par le propriétaire.*

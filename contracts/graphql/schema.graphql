@@ -1,0 +1,8 @@
+# Formuloo Tracker — schéma GraphQL publié (SDL). Frontière d'intégration front/back (ADR-022).
+# FT-1 : placeholder. FT-4 : le gateway (Strawberry) génère le vrai SDL.
+# FT-6b : le front le consomme via GraphQL Code Generator + mocks MSW.
+
+type Query {
+  """État de santé de la gateway."""
+  sante: String!
+}
