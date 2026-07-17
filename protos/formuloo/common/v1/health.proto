@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+// Contrat de santé minimal — prouve la chaîne buf (lint + breaking + codegen). FT-1.
+package formuloo.common.v1;
+
+// Vérification de disponibilité, commune à tous les services.
+service HealthService {
+  // Renvoie l'état de disponibilité du service.
+  rpc Check(CheckRequest) returns (CheckResponse);
+}
+
+message CheckRequest {}
+
+message CheckResponse {
+  // État courant du service, ex. "SERVING".
+  string status = 1;
+}

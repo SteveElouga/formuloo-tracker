@@ -1,10 +1,12 @@
 name: CI
-# Pipeline de départ (grandit en FT-1 : lint, buf, tests, build images).
-# À référencer comme "required status check" dans la protection de branches (FT-1).
+# Pipeline FT-1 : garde-fous + buf + tests + build/push images.
+# Checks requis (protection de branche) : "Garde-fous PR" et "CI OK" (voir scripts/setup-github.sh).
 
 on:
   pull_request:
     branches: [main, develop]
+  push:
+    branches: [develop]
 
 permissions:
   contents: read
@@ -12,6 +14,7 @@ permissions:
 jobs:
   garde-fous:
     name: Garde-fous PR
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Cible de PR conforme (seule develop -> main)
@@ -38,5 +41,151 @@ jobs:
           fi
           echo "✓ Messages de commit conformes."
 
-      - name: Placeholder
-        run: echo "CI de départ — lint (ruff/eslint), buf, tests (pytest/jest) et build d'images arrivent en FT-1."
+  changes:
+    name: Détection des changements
+    runs-on: ubuntu-latest
+    outputs:
+      proto: ${{ steps.filter.outputs.proto }}
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            proto:
+              - 'protos/**'
+            backend:
+              - 'services/**'
+              - 'protos/**'
+            frontend:
+              - 'frontend/**'
+              - 'contracts/**'
+
+  proto:
+    name: Contrats (buf)
+    needs: changes
+    if: needs.changes.outputs.proto == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ github.token }}
+      - name: Lint
+        working-directory: protos
+        run: buf lint
+      - name: Breaking (vs base, si baseline présente)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          if git cat-file -e "origin/${{ github.base_ref }}:protos/buf.yaml" 2>/dev/null; then
+            buf breaking protos --against ".git#ref=origin/${{ github.base_ref }},subdir=protos"
+          else
+            echo "ℹ Pas de baseline protos sur '${{ github.base_ref }}' — breaking ignoré (première introduction)."
+          fi
+      - name: Generate (le codegen doit réussir)
+        working-directory: protos
+        run: buf generate
+
+  backend:
+    name: Backend (ruff + pytest)
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/gateway-graphql
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: '3.12'
+      - run: uv sync
+      - name: Lint (ruff)
+        run: uv run ruff check .
+      - name: Tests (pytest)
+        run: uv run pytest
+
+  frontend:
+    name: Frontend (eslint + jest + build)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: pnpm install --no-frozen-lockfile
+      - name: Lint (eslint)
+        run: pnpm run lint
+      - name: Tests (jest)
+        run: pnpm test
+      - name: Build
+        run: pnpm run build
+
+  images:
+    name: Images (ghcr)
+    needs: [backend, frontend]
+    if: always() && needs.backend.result != 'failure' && needs.frontend.result != 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - name: gateway-graphql
+            context: services/gateway-graphql
+          - name: frontend
+            context: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nom d'image en minuscules (contrainte ghcr)
+        id: img
+        run: echo "repo=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - name: Login ghcr (uniquement sur push develop)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+          tags: ghcr.io/${{ steps.img.outputs.repo }}/${{ matrix.name }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  ci-ok:
+    name: CI OK
+    needs: [garde-fous, changes, proto, backend, frontend, images]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aucun job requis en échec (skipped toléré)
+        run: |
+          results="${{ needs['garde-fous'].result }} ${{ needs.changes.result }} ${{ needs.proto.result }} ${{ needs.backend.result }} ${{ needs.frontend.result }} ${{ needs.images.result }}"
+          echo "Résultats: $results"
+          for r in $results; do
+            case "$r" in
+              failure|cancelled)
+                echo "✖ Un job requis a échoué ($r)."; exit 1 ;;
+            esac
+          done
+          echo "✓ CI verte (jobs non concernés = skipped, tolérés)."

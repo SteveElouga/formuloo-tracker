@@ -1,0 +1,79 @@
+# https://taskfile.dev — Formuloo Tracker (FT-1). Orchestrateur ; s'étoffe au fil des stories.
+version: '3'
+silent: true
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  install:hooks:
+    desc: Active les hooks Git versionnés (.githooks) — OBLIGATOIRE
+    cmds:
+      - sh scripts/install-hooks.sh
+
+  # ─── Contrats (buf) ──────────────────────────────────────
+  proto:lint:
+    desc: Lint des contrats protobuf
+    dir: protos
+    cmds:
+      - buf lint
+
+  proto:breaking:
+    desc: Détection de rupture de contrat vs origin/develop
+    dir: protos
+    cmds:
+      - buf breaking --against '.git#branch=origin/develop,subdir=protos'
+
+  proto:gen:
+    desc: Génère le code protobuf/gRPC (sortie git-ignorée)
+    dir: protos
+    cmds:
+      - buf generate
+
+  # ─── Lint ────────────────────────────────────────────────
+  lint:
+    desc: Lint backend (ruff) + frontend (eslint)
+    cmds:
+      - task: lint:back
+      - task: lint:front
+  lint:back:
+    dir: services/gateway-graphql
+    cmds:
+      - uv run ruff check .
+  lint:front:
+    dir: frontend
+    cmds:
+      - pnpm run lint
+
+  # ─── Tests ───────────────────────────────────────────────
+  test:
+    desc: Tests backend (pytest) + frontend (jest)
+    cmds:
+      - task: test:back
+      - task: test:front
+  test:back:
+    dir: services/gateway-graphql
+    cmds:
+      - uv run pytest
+  test:front:
+    dir: frontend
+    cmds:
+      - pnpm test
+
+  # ─── Build images ────────────────────────────────────────
+  build:
+    desc: Build des images Docker (tag local)
+    cmds:
+      - docker build -t formuloo/gateway-graphql:local services/gateway-graphql
+      - docker build -t formuloo/frontend:local frontend
+
+  # ─── Infra (stubs — FT-2 / FT-3) ─────────────────────────
+  up:
+    desc: "(FT-2) Démarre infra + services : docker compose --profile app up -d"
+    cmds:
+      - echo "FT-2 à venir — voir deploy/compose/"
+  up:obs:
+    desc: "(FT-3) Démarre la pile observabilité (LGTM)"
+    cmds:
+      - echo "FT-3 à venir — voir deploy/compose/"

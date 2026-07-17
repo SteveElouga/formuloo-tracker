@@ -23,7 +23,7 @@ protect() {
   if gh api -X PUT "repos/$REPO_PATH/branches/$br/protection" \
        -H "Accept: application/vnd.github+json" --input - >/dev/null 2>&1 <<'JSON'
 {
-  "required_status_checks": { "strict": true, "contexts": [] },
+  "required_status_checks": { "strict": true, "contexts": ["Garde-fous PR", "CI OK"] },
   "enforce_admins": true,
   "required_pull_request_reviews": { "required_approving_review_count": 0 },
   "restrictions": null,
@@ -42,4 +42,4 @@ JSON
 
 protect main
 protect develop
-echo "Terminé. (En FT-1 : ajoute le job CI 'garde-fous' aux 'required status checks'.)"
+echo "Terminé. Checks requis : 'Garde-fous PR' + 'CI OK' (vérifie les noms exacts après le 1er run CI)."

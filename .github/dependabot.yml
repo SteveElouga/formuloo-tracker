@@ -1,0 +1,28 @@
+# Mises à jour de dépendances (ADR-021). Hebdomadaire, PR ciblant develop.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: develop
+  - package-ecosystem: pip
+    directory: /services/gateway-graphql
+    schedule:
+      interval: weekly
+    target-branch: develop
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    target-branch: develop
+  - package-ecosystem: docker
+    directory: /services/gateway-graphql
+    schedule:
+      interval: weekly
+    target-branch: develop
+  - package-ecosystem: docker
+    directory: /frontend
+    schedule:
+      interval: weekly
+    target-branch: develop
