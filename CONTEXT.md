@@ -37,7 +37,7 @@ Contraintes structurantes : interface en **français**, **responsive** (desktop 
 
 Application web autonome, auto-hébergée, **microservices** :
 
-- **Frontend** : SPA **Angular** + **PrimeNG** (preset Aura), client **Apollo** (GraphQL), OIDC PKCE, OTel Web SDK.
+- **Frontend** : SPA **Angular** + **PrimeNG** (preset Aura), client **Apollo** (GraphQL), **schéma-first** (GraphQL Code Generator) avec **couche de mock MSW** pour tourner sans backend, OIDC PKCE, OTel Web SDK.
 - **Gateway** : Django + **Strawberry GraphQL** — point d'entrée unique, agrégation, contrôle du JWT, DataLoader, subscriptions temps réel.
 - **5 services métier** (Django, exposant du **gRPC**) :
   - `svc-projects` — projets, membres, rôles, statuts, archivage
@@ -80,6 +80,8 @@ Les décisions sont tracées en **ADR-001→020** dans le DAT (`03-…md`).
 **Prochaine étape** : lever la *Definition of Ready du Sprint 0* (backlog §4, FT-E0) puis **FT-1 — scaffolding du monorepo** (structure, CI, protos, compose).
 
 **Équipe & rythme** : 1 développeur (solo), sprints de 2 semaines, ~20 pts/sprint, MVP visé ≈ 5 mois (souple). **Modèle de collaboration** : hybride — Claude construit le socle et le gros œuvre outillable en tranches verticales testées ; Steve révise et reprend la main story par story.
+
+**Trajectoire post-MVP** : le frontend et le backend seront repris par des **équipes distinctes, en dépôts séparés**. Le monorepo est donc conçu « prêt au split » : le **schéma GraphQL** est la frontière d'intégration, et le frontend tourne de façon **autonome** via sa couche de mock **MSW** (schéma-first + fixtures — DAT ADR-022). L'extraction de `/frontend` en dépôt indépendant en devient quasi triviale.
 
 ---
 

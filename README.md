@@ -31,7 +31,7 @@ Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires
 
 | Couche | Technologies |
 |---|---|
-| Frontend | **Angular** · **PrimeNG** (preset Aura) · Apollo Angular · Angular Signals · Transloco · Tiptap |
+| Frontend | **Angular** · **PrimeNG** (preset Aura) · Apollo Angular · **GraphQL Code Generator** · **MSW** (mocks) · Angular Signals · Transloco · Tiptap |
 | Gateway | Django · **Strawberry GraphQL** (HTTP + WebSocket) |
 | Services métier | Django · **gRPC** (`grpcio` + protobuf, gestion via `buf`) |
 | Identité | **Keycloak** (OIDC / PKCE) |
@@ -46,6 +46,7 @@ Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires
 ```
 formuloo-tracker/
 ├── protos/          # Contrats gRPC (source de vérité, versionnés, buf)
+├── contracts/       # Schéma GraphQL publié (SDL) — contrat front/back (codegen & mocks)
 ├── services/        # Services Django + gRPC
 │   ├── gateway-graphql/
 │   ├── svc-projects/
@@ -87,6 +88,9 @@ task up:obs            # ou: docker compose --profile obs up -d
 
 # 5. Frontend en développement
 cd frontend && pnpm install && pnpm start
+
+# …ou en mode mock, SANS backend (MSW + fixtures) :
+pnpm --dir frontend start:mock
 ```
 
 *(Les cibles `task …` seront fournies par le Sprint 0 — FT-1/FT-2.)*
