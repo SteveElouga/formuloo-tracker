@@ -1,0 +1,15 @@
+# Ports exposés sur l'hôte pour le debug local (JAMAIS en prod — DAT §9.2).
+# Usage : docker compose -f docker-compose.yml -f docker-compose.override.dev.yml up -d
+services:
+  keycloak:
+    ports: ["127.0.0.1:8081:8080"]     # UI Keycloak en direct (routage Traefik = FT-E1)
+  postgres:
+    ports: ["127.0.0.1:5432:5432"]
+  rabbitmq:
+    ports: ["127.0.0.1:15672:15672"]   # console management
+  redis:
+    ports: ["127.0.0.1:6379:6379"]
+  minio:
+    ports:
+      - "127.0.0.1:9000:9000"          # S3
+      - "127.0.0.1:9001:9001"          # console

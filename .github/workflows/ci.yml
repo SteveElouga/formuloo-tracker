@@ -48,6 +48,7 @@ jobs:
       proto: ${{ steps.filter.outputs.proto }}
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      compose: ${{ steps.filter.outputs.compose }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,6 +65,9 @@ jobs:
             frontend:
               - 'frontend/**'
               - 'contracts/**'
+            compose:
+              - 'deploy/**'
+              - 'scripts/smoke.sh'
 
   proto:
     name: Contrats (buf)
@@ -172,15 +176,38 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  compose-smoke:
+    name: Compose (infra healthy)
+    needs: changes
+    if: needs.changes.outputs.compose == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: .env de CI (valeurs placeholder)
+        run: cp .env.example .env
+      - name: Démarrer la pile infra
+        working-directory: deploy/compose
+        run: docker compose --env-file ../../.env -f docker-compose.yml -f docker-compose.smoke.yml up -d
+      - name: Smoke (healthy + endpoints)
+        run: bash scripts/smoke.sh
+      - name: Logs si échec
+        if: failure()
+        working-directory: deploy/compose
+        run: docker compose --env-file ../../.env logs --no-color --tail 200
+      - name: Arrêt
+        if: always()
+        working-directory: deploy/compose
+        run: docker compose --env-file ../../.env -f docker-compose.yml -f docker-compose.smoke.yml down -v
+
   ci-ok:
     name: CI OK
-    needs: [garde-fous, changes, proto, backend, frontend, images]
+    needs: [garde-fous, changes, proto, backend, frontend, images, compose-smoke]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Aucun job requis en échec (skipped toléré)
         run: |
-          results="${{ needs['garde-fous'].result }} ${{ needs.changes.result }} ${{ needs.proto.result }} ${{ needs.backend.result }} ${{ needs.frontend.result }} ${{ needs.images.result }}"
+          results="${{ needs['garde-fous'].result }} ${{ needs.changes.result }} ${{ needs.proto.result }} ${{ needs.backend.result }} ${{ needs.frontend.result }} ${{ needs.images.result }} ${{ needs['compose-smoke'].result }}"
           echo "Résultats: $results"
           for r in $results; do
             case "$r" in

@@ -1,0 +1,8 @@
+# Conteneur curl éphémère (profil smoke) pour sonder les endpoints internes. FT-2.
+# Usage via scripts/smoke.sh : docker compose ... run --rm --entrypoint curl smoke <args>
+services:
+  smoke:
+    image: curlimages/curl:8.10.1
+    profiles: [smoke]
+    networks: [edge, backend]
+    entrypoint: ["sleep", "infinity"]
