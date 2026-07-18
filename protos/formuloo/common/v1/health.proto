@@ -15,3 +15,8 @@ message CheckResponse {
   // État courant du service, ex. "SERVING".
   string status = 1;
 }
+
+// ÉCHEC VOLONTAIRE (preuve CI) — champ camelCase viole FIELD_LOWER_SNAKE_CASE
+message MauvaisMessage {
+  int32 mauvaisChamp = 1;
+}
