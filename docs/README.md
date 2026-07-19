@@ -8,6 +8,8 @@ Documentation de référence du produit.
 | `02-specification-fonctionnelle-formuloo-tracker.md` | Spécification fonctionnelle détaillée (SFD) |
 | `03-architecture-technique-formuloo-tracker.md` | Document d'Architecture Technique (DAT) + ADR |
 | `04-backlog-mvp-formuloo-tracker.md` | Backlog priorisé + plan de release |
+| `05-plan-implementation-observabilite-formuloo-tracker.md` | Plan d'implémentation de l'observabilité (LGTM) |
+| `06-guide-utilisation-observabilite-formuloo-tracker.md` | Guide d'utilisation de l'observabilité |
 | `CONTEXT.md` | Contexte projet (le « pourquoi ») |
 | `Formuloo Tracker.html` | Maquette haute-fidélité (référence UI) |
 
