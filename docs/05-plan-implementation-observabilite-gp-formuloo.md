@@ -1,4 +1,4 @@
-# Plan d'implémentation — Observabilité · Formuloo Tracker
+# Plan d'implémentation — Observabilité · GP-Formuloo
 
 | | |
 |---|---|
@@ -12,7 +12,7 @@
 
 ## 0. Objet & positionnement
 
-Ce document décrit **comment** brancher l'observabilité sur Formuloo Tracker, du socle local jusqu'à Kubernetes, en respectant deux contraintes structurantes :
+Ce document décrit **comment** brancher l'observabilité sur GP-Formuloo, du socle local jusqu'à Kubernetes, en respectant deux contraintes structurantes :
 
 1. **L'observabilité n'est pas un chantier isolé.** Elle est déjà inscrite dans la **Definition of Done de chaque story** (backlog §2.3 : « spans OTel sur les nouveaux RPC/résolveurs, logs structurés, métriques RED visibles dans Grafana »). Le plan traite donc l'observabilité comme un **fil transverse** : un socle à poser une fois, puis une **checklist appliquée à chaque story** (voir §7).
 2. **Instrumenter tôt, mais minimal d'abord.** L'auto-instrumentation OTel (qui accroche le *framework*, pas le code métier) est posée dès maintenant sur la gateway existante ; les spans/métriques **métier** custom arrivent au fil des features, quand les opérations se stabilisent.

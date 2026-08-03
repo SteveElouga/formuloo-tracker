@@ -1,15 +1,15 @@
 # Document d'Architecture Technique (DAT)
-# Formuloo Tracker — MVP V1.0
+# GP-Formuloo — MVP V1.0
 
 | Champ | Valeur |
 |---|---|
-| **Produit** | Formuloo Tracker (mini Jira interne) |
+| **Produit** | GP-Formuloo (mini Jira interne) |
 | **Type de document** | Document d'Architecture Technique (DAT) |
 | **Structure** | Inspirée du modèle **arc42** + ADR (Architecture Decision Records) |
-| **Version** | 1.6 |
+| **Version** | 1.7 |
 | **Date** | 17/07/2026 |
 | **Statut** | Draft — soumis à validation |
-| **Documents parents** | `01-analyse-fonctionnalites-jira-et-mvp.md` [R1], `02-specification-fonctionnelle-formuloo-tracker.md` [R2], `04-backlog-mvp-formuloo-tracker.md` [R4], `Formuloo Tracker.html` (maquette) [R5] |
+| **Documents parents** | `01-analyse-fonctionnalites-jira-et-mvp.md` [R1], `02-specification-fonctionnelle-gp-formuloo.md` [R2], `04-backlog-mvp-gp-formuloo.md` [R4], `GP-Formuloo.html` (maquette) [R5] |
 | **Contraintes imposées** | Angular · PrimeNG · Django · GraphQL · gRPC · Microservices · 100 % open source · Observabilité Grafana · Keycloak · Docker Compose → Kubernetes |
 
 ## Historique des révisions
@@ -23,6 +23,7 @@
 | 1.4 | 17/07/2026 | Formuloo | Plateforme : décision finale **GitHub** (ADR-021 réécrit) ; §11/§12 revenus à GitHub Actions / ghcr.io / Dependabot. Protection de branches sur dépôt privé = GitHub Pro ou dépôt public, sinon hooks locaux. |
 | 1.5 | 17/07/2026 | Formuloo | Dépôt **public** (ADR-021) : protection de branches gratuite ⇒ E1 applicable côté serveur sans coût ; §11 mis à jour. |
 | 1.6 | 17/07/2026 | Formuloo | ADR-022 : indépendance du frontend (schéma-first + mock MSW) en vue du split post-MVP ; structure `/contracts` ; outillage front (MSW, GraphQL Code Generator) au §16.2. |
+| 1.7 | 03/08/2026 | Formuloo | **Renommage en GP-Formuloo.** Adoption des standards de gouvernance v5 et CI/CD (**ADR-023**) ; **ADR-021 réécrit : GitLab** (annule GitHub) ; **ADR-011 révisé : Nx adopté** côté frontend ; §11 aligné (GitLab CI, chaîne DevSecOps, build-once-promote, Renovate). Écarts assumés : **ADR-008 inchangé** (Compose puis k3s — AKS incompatible avec CT-6/CT-9), PostgreSQL conservé, porte de couverture armée plus tard. |
 
 ---
 
@@ -50,7 +51,7 @@
 ## 1. Introduction, objectifs et contraintes
 
 ### 1.1 Objectif du document
-Définir l'architecture technique du MVP de Formuloo Tracker : découpage en services, technologies, flux, sécurité, observabilité et stratégie de déploiement. Ce document est le référentiel de l'équipe de développement et d'exploitation ; il implémente les exigences fonctionnelles [R2] et non fonctionnelles (ENF-01 → ENF-14).
+Définir l'architecture technique du MVP de GP-Formuloo : découpage en services, technologies, flux, sécurité, observabilité et stratégie de déploiement. Ce document est le référentiel de l'équipe de développement et d'exploitation ; il implémente les exigences fonctionnelles [R2] et non fonctionnelles (ENF-01 → ENF-14).
 
 ### 1.2 Contraintes d'architecture (non négociables)
 
@@ -135,10 +136,10 @@ Chaque décision est tracée au format court : contexte → décision → consé
 - **Décision** : **modèle main + develop** — `main` et `develop` **inviolables** (aucun commit direct) ; `develop` créée à partir de `main`, **toute branche de travail créée à partir de `develop`** ; une **branche dédiée par implémentation** (`feat/ft-<id>-<slug>`, `fix/…`, `chore/…`) ; **rebase obligatoire sur `develop` à jour** avant push ; fusion **uniquement par MR** ciblant `develop` ; `develop` → `main` **uniquement par MR**, puis **tag SemVer** sur `main`. Historique **linéaire** (squash/rebase). Règles complètes et garde-fous d'exécution : **`MEMORY.md`**.
 - **Conséquences** : ✔ branches stables et protégées, contributions auditables, releases contrôlées ; ✔ règles opposables (protection de plateforme + hooks Git) ; ✖ plus cérémonieux que le trunk-based (davantage de MR et de rebases) — assumé par le propriétaire pour la sûreté.
 
-### ADR-011 — Outillage du monorepo : Taskfile + scripts (pas de Nx)
-- **Contexte** : ADR-009 fixe la structure du monorepo mais pas l'orchestrateur ; backend à ~80 % Python.
-- **Décision** : orchestration par **Taskfile** (ou Makefile) + scripts, **CI filtrée par dossier**. **Pas de Nx** (fort surtout côté Angular, support Python partiel).
-- **Conséquences** : ✔ transparent, polyglotte, chaque service reste un projet Django standard ; ✖ pas de cache de tâches distribué (les caches Docker/pip/pnpm suffisent au MVP).
+### ADR-011 — Outillage du monorepo : Taskfile + **Nx** côté frontend *(révisé — v1.7)*
+- **Contexte** : ADR-009 fixe la structure du monorepo mais pas l'orchestrateur. La v1.0 écartait Nx (support Python partiel). Le **standard d'architecture CI/CD** adopté (ADR-023) en fait le « levier de vitesse n° 1 » du frontend : `nx affected` ne lint/teste/build que ce que la MR touche réellement.
+- **Décision** : **deux outils, deux périmètres**. (1) **Taskfile** reste l'orchestrateur transverse du dépôt (hooks, infra, contrats, backend) — polyglotte et transparent. (2) **Nx** est adopté **pour `/frontend`** : workspace Angular en monorepo Nx, `nx affected -t lint,test,build --base=<cible MR>` en CI. Le backend Python reste hors Nx (projets Django standards, filtrage CI par dossier).
+- **Conséquences** : ✔ CI frontend proportionnelle au diff (gain majeur quand le front grossit) ; ✔ cache de tâches local et CI ; ✖ **migration à faire** — le workspace Angular actuel (FT-1) est un projet simple, sa conversion en workspace Nx est une tâche dédiée (hors FT-1/FT-2) ; ✖ une couche d'outillage de plus à maîtriser côté front.
 
 ### ADR-012 — Bibliothèque UI : PrimeNG (preset Aura)
 - **Contexte** : frontend Angular (CT-1) sans lib de composants désignée ; la maquette [R5] fixe un Design System précis (§16.4).
@@ -185,16 +186,25 @@ Chaque décision est tracée au format court : contexte → décision → consé
 - **Décision** : **dev et démonstration en local via Docker Compose** pour le MVP initial, avec les **profils du §9.1** (profil `app` + état toujours actifs, profil **`obs` (LGTM) à la demande** pour économiser ~2,5 Go). **VPS provisionné plus tard** (préprod partageable, sprint pilote FT-64) — migration sans refonte (ADR-008).
 - **Conséquences** : ✔ zéro coût et zéro dépendance réseau pour développer ; ✔ infra identique (mêmes images) ; ✖ pré-requis ≥ 16 Go RAM (pile complète ≈ 10 Go) d'où le profil `obs` optionnel ; ✖ pas d'URL partageable tant que le VPS n'est pas là.
 
-### ADR-021 — Plateforme : GitHub, dépôt public (décision finale)
-- **Contexte** : le propriétaire (Steve) retient **GitHub**. La protection de branches / rulesets de GitHub n'est pas disponible sur les dépôts *privés* en plan gratuit (nécessiterait Pro), mais elle est **gratuite sur les dépôts publics**.
-- **Décision** : **GitHub, dépôt public** — la **protection de branches est gratuite**, donc E1 est **pleinement applicable côté serveur** sans coût. CI **GitHub Actions** (minutes illimitées sur dépôt public), **GitHub Container Registry (ghcr.io)**, suivi des dépendances **Dependabot**. Terminologie : **PR** (Pull Request), équivalente à la « MR » des règles de `MEMORY.md`. Le script `scripts/setup-github.sh` applique la protection de `main` et `develop`.
-- **Portée « public »** : seul le **code source** est public ; les **données applicatives restent auto-hébergées et privées** (l'auto-hébergement de [R2] est inchangé). Aucun secret dans Git (`MEMORY.md` S1/S2). Un passage ultérieur en **privé** resterait possible, mais exigerait alors **GitHub Pro** pour conserver la protection.
-- **Conséquences** : ✔ E1 opposable côté serveur, **coût nul** (CT-6 respecté), minutes CI illimitées ; ✔ Actions / ghcr.io / Dependabot natifs ; ✖ code source visible publiquement (assumé) — prévoir un fichier `LICENSE` avant diffusion large.
+### ADR-021 — Plateforme : **GitLab** *(réécrit — v1.7 ; annule et remplace la décision GitHub)*
+- **Contexte** : le **standard de gouvernance & sécurité Git v5** (ADR-023), désormais contraignant pour GP-Formuloo, est écrit pour **GitLab** : `.gitlab-ci.yml` unique avec `include:`, **Merge Requests**, CLI `glab`, **GitLab Container Registry**, **Renovate**, signature d'images cosign via *ID token* OIDC GitLab. La décision GitHub (v1.4/v1.5) reposait sur la gratuité de la protection de branches en dépôt public — argument satisfait autrement ici.
+- **Décision** : **GitLab**. CI **GitLab CI** (`.gitlab-ci.yml` + `.gitlab/ci/{security,package}.gitlab-ci.yml`), registre **GitLab Container Registry**, mises à jour de dépendances par **Renovate** (`renovate.json`), protection de `main`/`develop` appliquée par `scripts/setup-gitlab.sh`. Terminologie : **MR** (Merge Request) — la terminologie d'origine de `MEMORY.md`, la parenthèse « PR » disparaît.
+- **Paliers assumés** : sur **GitLab Free**, plusieurs verrous fins sont payants — approbation Code Owners et *push rule* de rejet des commits non signés sont **Premium**, les politiques de blocage par sévérité et le widget sécurité sont **Ultimate**. La barrière réelle reste donc **branches protégées + « pipelines must succeed » + jobs CI qui échouent** : le verrou Owner (E9) et la vérification des signatures (E10) sont assurés par des **jobs de pipeline**. **CT-6 (coût nul) reste respecté.**
+- **Conséquences** : ✔ conformité directe au standard, sans transposition ; ✔ registre, CI et MR natifs sur une seule plateforme ; ✖ **migration à réaliser** — dépôt, historique et machinerie CI (la CI GitHub Actions de FT-1/FT-2 est à porter) ; ✖ certains verrous reposent sur des jobs CI plutôt que sur la plateforme, tant qu'on reste en Free.
 
 ### ADR-022 — Indépendance du frontend : schéma-first + couche de mock (MSW)
 - **Contexte** : après le MVP, **frontend et backend seront repris par des équipes distinctes, dans des dépôts séparés**. Le frontend doit pouvoir être développé, exécuté, démontré et testé **sans backend** — au MVP (avant que les services existent, cf. méthode frontend-driven du backlog §2) comme après le split.
 - **Décision** : le frontend dépend du **schéma GraphQL** (contrat), jamais d'un backend qui tourne. (1) Le **schéma SDL** est généré depuis le gateway et publié comme artefact versionné dans `/contracts/graphql/schema.graphql`. (2) **GraphQL Code Generator** produit les types et opérations typées du front à partir du SDL. (3) **MSW (Mock Service Worker)** avec handlers GraphQL fournit une **couche de mock unique** réutilisée en `ng serve` (mode mock, bascule `environment.apiMode`), en tests Jest et en E2E Playwright. (4) Des **fixtures réalistes** calquées sur les personas ([R2] §3.2) et la maquette ([R5]) constituent le jeu de données de démo. (5) Une vérification CI valide les opérations du front contre le SDL (anti-dérive mock ↔ API).
 - **Conséquences** : ✔ le frontend build / tourne / se teste **sans aucun backend** ; ✔ `/frontend` autonome ⇒ extraction en dépôt séparé quasi triviale au split ; ✔ chaque story démontrable avant l'implémentation du service ; ✖ discipline : garder les mocks fidèles au SDL (vérif CI) et le SDL comme unique contrat. Un **serveur de mock GraphQL autonome** (`graphql-yoga` + `@graphql-tools/mock`) est **repoussé au split**, si un endpoint réseau devient nécessaire.
+
+### ADR-023 — Adoption des standards de gouvernance Git v5 et d'architecture CI/CD *(ajouté — v1.7)*
+- **Contexte** : deux documents de référence transverses (« Standard de gouvernance & sécurité Git v5 » et « Architecture d'un pipeline CI/CD universel ») deviennent **contraignants** pour GP-Formuloo. Ils élargissent nettement les règles du projet : R7 (hotfix), R8 (circuit atomique), E7→E12, S4→S7.
+- **Décision** : **adoption des deux standards**. En découlent : plateforme **GitLab** (ADR-021), **Nx** côté frontend (ADR-011), chaîne **DevSecOps** obligatoire sur chaque MR (gitleaks, Semgrep, Trivy, SBOM), **commits signés SSH** (E10), **porte de couverture 85 %** (E11), **porte sur le chemin** — les scans doivent figurer dans le `needs:` du build d'image, de sorte qu'un scan rouge empêche la **publication** et pas seulement le merge (E12), release en **build-once-promote** avec image signée (cosign) et SBOM, jamais de tag `latest`. `MEMORY.md` devient un document **vivant** (état courant, journal, registre de décisions) et `CONTEXT.md` remonte à la racine avec une partie générée vérifiée en CI (E8).
+- **Écarts assumés** :
+  1. **Cible de déploiement inchangée** — le standard CI/CD vise Ansible + **AKS** + Argo CD, cible de *l'autre projet*. GP-Formuloo conserve **ADR-008** (Compose puis k3s) : AKS est un service **payant**, incompatible avec **CT-6** (aucun SaaS payant) et avec **CT-9**. Le choix k3s/Argo CD/AKS sera tranché plus tard, à l'échéance de la phase 2.
+  2. **Base de données** — le modèle Django du standard cite MSSQL ; GP-Formuloo reste sur **PostgreSQL** (ADR-004).
+  3. **Couverture** — la porte à 85 % (E11) n'est armée qu'une fois une base de tests réelle en place ; le seuil est câblé dès maintenant mais ne bloque pas tant que `coverage.txt` n'est pas produit.
+- **Conséquences** : ✔ gouvernance et sécurité alignées sur un standard éprouvé et réutilisable ; ✔ portes réellement bloquantes plutôt que décoratives ; ✖ chantier de mise en conformité échelonné (renommage et ADR, socle de gouvernance, bascule GitLab, conformité CI/CD, Nx) ; ✖ friction supplémentaire au quotidien (signature, fraîcheur du contexte, circuit atomique) — assumée.
 
 ---
 
@@ -206,8 +216,8 @@ graph TB
         U1["👤 Équipe Formuloo<br/>(Super Admin, Admin projet,<br/>Membre, Observateur)"]
     end
 
-    subgraph "Formuloo Tracker (système)"
-        SYS["🎯 Formuloo Tracker<br/>Gestion de projet agile<br/>(tickets, boards, sprints, rapports)"]
+    subgraph "GP-Formuloo (système)"
+        SYS["🎯 GP-Formuloo<br/>Gestion de projet agile<br/>(tickets, boards, sprints, rapports)"]
     end
 
     subgraph "Systèmes externes"
@@ -572,7 +582,7 @@ deploy/compose/
 | .env | `ConfigMap` + `Secret` (scellés via SOPS/age — gratuit) |
 | postgres, minio, rabbitmq | soit opérateurs (CloudNativePG, MinIO Operator), soit **conservés hors cluster** sur une VM dédiée (recommandé au début) |
 | Stack LGTM | Helm charts officiels Grafana (`k8s-monitoring`), kube-state-metrics en plus |
-| deploy.sh | Helm chart maison `formuloo-tracker` + GitOps (Argo CD, open source) |
+| deploy.sh | Helm chart maison `gp-formuloo` + GitOps (Argo CD, open source) |
 
 Grâce à l'ADR-008 (12 facteurs, mêmes images, état externalisé), **aucune modification de code applicatif** n'est attendue pour cette migration.
 
@@ -580,9 +590,11 @@ Grâce à l'ADR-008 (12 facteurs, mêmes images, état externalisé), **aucune m
 
 | Étape | Outil (gratuit) | Contenu |
 |---|---|---|
-| Dépôt | GitHub (public) — monorepo (ADR-009) | branches protégées `main`/`develop` + PR obligatoires (protection gratuite sur dépôt public — ADR-021) |
-| CI | GitHub Actions (2 000 min/mois gratuites) + option **self-hosted runner** sur le VPS si dépassement | lint (ruff, eslint), génération protobuf + vérification de **compatibilité de contrat** (buf breaking), tests unitaires (pytest, RG-020→030 à 100 % — ENF-11), tests des résolveurs GraphQL, build images |
-| Registry | GitHub Container Registry (ghcr.io, gratuit) | images taguées par version + SHA |
+| Dépôt | **GitLab** — monorepo (ADR-009, ADR-021) | branches protégées `main`/`develop` + **MR** obligatoires, fusion *ff + squash*, historique linéaire |
+| CI | **GitLab CI** (`.gitlab-ci.yml` + `include:` de `.gitlab/ci/{security,package}.gitlab-ci.yml`) ; runner auto-hébergé si besoin | stages `verify → security → package` : lint (ruff, eslint), `nx affected` côté front (ADR-011), génération protobuf + **buf breaking**, tests (pytest, RG-020→030 à 100 % — ENF-11), **porte de couverture 85 %** |
+| Sécurité (chaque MR) | **gitleaks** (secrets), **Semgrep** (SAST), **Trivy** (dépendances, image, IaC), **SBOM** CycloneDX | portes **bloquantes** et présentes dans le `needs:` du build d'image (E12) ; exceptions uniquement par fichier daté (`.trivyignore`, `.semgrepignore`) |
+| Registry | **GitLab Container Registry** | *build-once-promote* : `tmp-<sha>` → scan → smoke → promotion en `<sha>` + `vX.Y.Z`, signée **cosign** (OIDC) ; **jamais `latest`** |
+| Dépendances | **Renovate** (`renovate.json`) | MR de mise à jour automatiques (npm, pip, Docker, includes CI) |
 | CD phase 1 | script `deploy.sh` déclenché manuellement (ou par tag) | pull + up + smoke test `/healthz` |
 | CD phase 2 | Argo CD | synchronisation Git → cluster |
 | Qualité | SonarQube Community (optionnel, self-hosted) | dette, couverture |
@@ -593,7 +605,7 @@ Grâce à l'ADR-008 (12 facteurs, mêmes images, état externalisé), **aucune m
 2. **AuthN/AuthZ** : JWT courts (5 min) + refresh ; autorisation métier revérifiée par le service propriétaire à chaque appel (jamais confiance au front ni au gateway seul).
 3. **Entrées** : validation stricte aux deux bords (GraphQL input types + validateurs Django) ; upload limité en taille/type ; URL présignées MinIO à durée courte (10 min).
 4. **Secrets** : uniquement en variables d'environnement / secrets, jamais en Git ; rotation documentée.
-5. **Durcissement** : en-têtes de sécurité (CSP, HSTS) via Traefik ; comptes non-root ; scan d'images en CI (Trivy, gratuit) ; dépendances suivies (Dependabot).
+5. **Durcissement** : en-têtes de sécurité (CSP, HSTS) via Traefik ; comptes non-root ; scan d'images en CI (Trivy, gratuit) ; dépendances suivies (Renovate).
 6. **Traçabilité** : historique tickets infalsifiable (ENF-12) + logs d'accès conservés 30 j ; échecs de connexion supervisés (§8.4).
 
 ## 13. Performance, scalabilité et résilience

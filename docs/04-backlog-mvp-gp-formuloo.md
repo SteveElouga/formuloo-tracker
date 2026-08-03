@@ -1,11 +1,11 @@
-# Backlog Produit — MVP Formuloo Tracker
+# Backlog Produit — MVP GP-Formuloo
 # Epics, User Stories, Plan de Sprints
 
 | Champ | Valeur |
 |---|---|
-| **Produit** | Formuloo Tracker (mini Jira interne) |
+| **Produit** | GP-Formuloo (mini Jira interne) |
 | **Type de document** | Backlog produit priorisé + plan de release MVP |
-| **Version** | 1.5 |
+| **Version** | 1.6 |
 | **Date** | 17/07/2026 |
 | **Équipe** | 1 développeur fullstack (solo) |
 | **Cadence** | Sprints de 2 semaines |
@@ -22,6 +22,7 @@
 | 1.2 | 17/07/2026 | Plateforme GitLab (au lieu de GitHub) : CI, registre et DoR Sprint 0 mis à jour (aligné DAT ADR-021). |
 | 1.3 | 17/07/2026 | Plateforme : décision finale GitHub (aligné DAT ADR-021) : CI GitHub Actions, registre ghcr.io, DoR Sprint 0. |
 | 1.4 | 17/07/2026 | Dépôt public (aligné DAT ADR-021 v1.5) : protection de branches gratuite ; DoR Sprint 0 mise à jour. |
+| 1.6 | 03/08/2026 | **Renommage GP-Formuloo** ; plateforme **GitLab** et chaîne DevSecOps (aligné DAT ADR-021/023) : DoR Sprint 0, FT-1 et schéma DoD mis à jour. |
 | 1.5 | 17/07/2026 | Ajout **FT-6b** (socle de mock frontend : MSW + schéma partagé + codegen + fixtures) pour l'indépendance du front en vue du split (DAT ADR-022) ; totaux S0 mis à jour (7 stories / 26 pts). |
 
 ---
@@ -75,7 +76,7 @@ Chaque story suit **le même cycle en 7 étapes** — c'est la définition opér
 │ 6. 🔗 INTÉGRATION — Brancher le front sur le vrai gateway ;          │
 │    activer le test E2E (retirer @wip) ; il passe en local (compose). │
 │ 7. ✅ DoD — Observabilité, revue de code (auto-revue outillée +      │
-│    PR), CI verte, story démontrable → Done.                          │
+│    MR), CI verte, story démontrable → Done.                          │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -179,7 +180,7 @@ Format de chaque story : **ID · Titre** — story 3C — critères d'acceptatio
 **Modèle de collaboration (cadrage)** : hybride — Claude construit le socle et le gros œuvre outillable (FT-1→6, gabarits, CI, observabilité) en tranches verticales testées ; Steve révise chaque incrément et reprend la main story par story. WIP = 1, DoD non négociée.
 
 **Definition of Ready — Sprint 0** (à lever avant FT-1) :
-- [ ] Dépôt GitHub **public** créé ; `main` et `develop` protégées via PR + CI verte (gratuit sur dépôt public), accès Steve OK ;
+- [ ] Dépôt **GitLab** créé ; `main` et `develop` protégées via MR + CI verte (`scripts/setup-gitlab.sh`), accès Steve OK ;
 - [ ] Outils installés : Docker + Compose, Node 20 LTS + pnpm, Python 3.12 + uv, `buf`, Taskfile, Playwright ;
 - [ ] Versions figées ([R3] §16.2) : `.nvmrc`, `.python-version`, infra épinglée ;
 - [ ] Design tokens ([R3] §16.4) transcrits en preset Aura + variables CSS ; polices Sora/Inter/JetBrains Mono self-hostées ;
@@ -188,7 +189,7 @@ Format de chaque story : **ID · Titre** — story 3C — critères d'acceptatio
 
 | ID | Story | CA principaux | Tests TDD clés | Dép. | Pts |
 |---|---|---|---|---|---|
-| FT-1 | **Monorepo & CI** — En tant que développeur, je veux un monorepo avec CI (lint, tests, build, protos) afin que chaque commit soit vérifié automatiquement. | Structure `/protos /services /frontend /deploy /docs` ; pipeline GitHub Actions verte sur PR ; `buf lint` + `buf breaking` bloquants ; images poussées sur ghcr.io taguées SHA. | Le pipeline lui-même (échec si test rouge, si proto cassé). | — | 3 |
+| FT-1 | **Monorepo & CI** — En tant que développeur, je veux un monorepo avec CI (lint, tests, build, protos) afin que chaque commit soit vérifié automatiquement. | Structure `/protos /services /frontend /deploy /docs` ; pipeline **GitLab CI** verte sur MR ; `buf lint` + `buf breaking` bloquants ; images poussées sur le **GitLab Container Registry**, taguées SHA (jamais `latest`). | Le pipeline lui-même (échec si test rouge, si proto cassé). | — | 3 |
 | FT-2 | **Environnement compose** — En tant que développeur, je veux `docker compose up` qui lance Traefik, Keycloak, PostgreSQL, RabbitMQ, Redis, MinIO afin de développer sur une infra identique à la prod. | Tous les conteneurs healthy ; réseaux edge/backend/observability conformes au DAT §9 ; `.env.example` documenté. | Healthchecks = tests ; script `smoke.sh` vérifie chaque endpoint. | FT-1 | 3 |
 | FT-3 | **Stack observabilité** — En tant qu'exploitant, je veux Alloy + Prometheus + Loki + Tempo + Grafana provisionnés afin de voir logs, métriques et traces dès le premier service. | Grafana accessible (auth) ; datasources provisionnées en code ; dashboard « Vue d'ensemble » affiche l'état des conteneurs ; une trace de test OTLP visible dans Tempo. | Test d'ingestion : émettre 1 trace + 1 log + 1 métrique synthétiques, les retrouver via l'API Grafana. | FT-2 | 5 |
 | FT-4 | **Gateway GraphQL minimal** — En tant que développeur front, je veux un gateway Django/Strawberry exposant `{ sante }` et le socle JWT afin d'avoir le point d'entrée du contrat. | `/graphql` répond ; requête sans JWT → 401 ; avec JWT Keycloak valide → 200 ; spans OTel émis. | *Front d'abord* : test Angular d'un service Apollo mocké ; puis pytest du middleware JWT (token expiré, mauvaise signature, ok). | FT-2 | 3 |
@@ -349,4 +350,4 @@ Format de chaque story : **ID · Titre** — story 3C — critères d'acceptatio
 
 ---
 
-*Documents liés : [R1] analyse & MVP · [R2] SFD · [R3] DAT · [R5] maquette. Décisions de cadrage intégrées en v1.1 (§2.1/§2.3, §3.1, DoR Sprint 0). Ce backlog est destiné à être importé dans l'outil de suivi (y compris, à terme, dans Formuloo Tracker lui-même — dogfooding dès le sprint 6).*
+*Documents liés : [R1] analyse & MVP · [R2] SFD · [R3] DAT · [R5] maquette. Décisions de cadrage intégrées en v1.1 (§2.1/§2.3, §3.1, DoR Sprint 0). Ce backlog est destiné à être importé dans l'outil de suivi (y compris, à terme, dans GP-Formuloo lui-même — dogfooding dès le sprint 6).*

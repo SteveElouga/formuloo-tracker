@@ -1,5 +1,5 @@
 #!/bin/sh
-# Formuloo Tracker — installe les hooks Git versionnés (.githooks). Idempotent.
+# GP-Formuloo — installe les hooks Git versionnés (.githooks). Idempotent.
 # Usage : sh scripts/install-hooks.sh   (à exécuter une fois après le clone)
 set -eu
 

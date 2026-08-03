@@ -1,4 +1,4 @@
-# MEMORY.md — Règles opératoires du projet Formuloo Tracker
+# MEMORY.md — Règles opératoires du projet GP-Formuloo
 
 > **Statut : contraignant.** Ce fichier est le **règlement de référence** pour toute personne et tout agent (dont Claude) travaillant sur ce dépôt. Il doit être **lu au début de chaque session** et **respecté sans exception**. En cas de conflit avec une autre consigne, **ce fichier prime** (voir §5).
 
@@ -11,7 +11,7 @@ Ces règles s'appliquent à **100 % des contributions**, humaines comme automati
 - **R1 — Une branche par implémentation.** Toute implémentation (story `FT-x`, correctif, tâche technique) se fait sur une **branche dédiée**. Une branche = une seule unité de travail. Aucun travail « en vrac » hors d'une branche dédiée.
 - **R2 — `main` et `develop` sont inviolables.** **Aucun commit, aucun push, aucune modification directe** sur `main` ou `develop`. Jamais, sous aucun prétexte.
 - **R3 — Hiérarchie des branches.** `develop` est créée **à partir de `main`**. **Toutes** les autres branches (feature, fix, chore, docs, refactor, test) sont créées **à partir de `develop`** (jamais à partir de `main`, jamais à partir d'une autre branche de travail).
-- **R4 — Fusion dans `develop` uniquement par MR.** Aucune fusion directe dans `develop`. **Toujours** passer par une **MR** (Merge Request / Pull Request) dont la **branche cible est `develop`**.
+- **R4 — Fusion dans `develop` uniquement par MR.** Aucune fusion directe dans `develop`. **Toujours** passer par une **MR** (Merge Request GitLab) dont la **branche cible est `develop`**.
 - **R5 — Rebase obligatoire avant push et MR.** Avant **tout** push et **toute** création de MR : `git fetch` puis **`git rebase origin/develop`** sur la branche `develop` **à jour**. La MR **cible toujours `develop`**. On ne pousse jamais une branche non rebasée.
 - **R6 — `main` n'accepte que `develop`, par MR.** Seule `develop` peut être fusionnée dans `main`, et **uniquement via une MR** ciblant `main` (même processus qu'en R4/R5). Après cette MR, une **release SemVer** (tag `vX.Y.Z`) est posée sur `main`.
 
@@ -88,7 +88,9 @@ Référence complète dans les documents du projet ; résumé pour recall imméd
 | Développement | **dirigé par le frontend** (l'écran dicte la query GraphQL, puis le RPC) | backlog §2 |
 | Secrets / config | 12 facteurs ; config par variables d'environnement uniquement | DAT ADR-008/§12 |
 
-> **Plateforme : GitHub, dépôt public** (DAT §11 / ADR-021). Une **MR** correspond ici à une **Pull Request (PR)** GitHub. Sur dépôt **public**, la protection de branches est **gratuite** : `main`/`develop` protégées ⇒ E1 appliqué **côté serveur** (en plus des hooks locaux). Configuration : `scripts/setup-github.sh`. Seul le code est public ; les données restent auto-hébergées.
+> **Plateforme : GitLab** (DAT §11 / ADR-021, réécrit en v1.7). Les intégrations passent par des **Merge Requests** ; `main`/`develop` sont protégées ⇒ E1 appliqué **côté serveur** (en plus des hooks locaux), configuration par `scripts/setup-gitlab.sh`. Sur **GitLab Free**, certains verrous fins (approbation Code Owners, rejet des commits non signés au push) sont payants : ils sont assurés par des **jobs de pipeline** — voir ADR-021. Les données applicatives restent auto-hébergées.
+>
+> **Règlement complet** : ce fichier applique le **standard de gouvernance & sécurité Git v5** (DAT ADR-023). Sa mise à niveau — R7 (hotfix), R8 (circuit atomique), E7→E12, S4→S7 et les sections vivantes — est le chantier de la phase suivante.
 
 ---
 

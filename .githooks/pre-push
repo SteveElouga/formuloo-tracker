@@ -1,5 +1,5 @@
 #!/bin/sh
-# Formuloo Tracker — hook pre-push : protège main/develop et impose le rebase (MEMORY.md R2/R5).
+# GP-Formuloo — hook pre-push : protège main/develop et impose le rebase (MEMORY.md R2/R5).
 set -eu
 
 protected="main develop"

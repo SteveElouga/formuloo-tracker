@@ -1,5 +1,5 @@
 #!/bin/sh
-# Formuloo Tracker — hook commit-msg : valide les Conventional Commits (ADR-019 ; MEMORY.md §5).
+# GP-Formuloo — hook commit-msg : valide les Conventional Commits (ADR-019 ; MEMORY.md §5).
 set -eu
 
 msg_file="$1"

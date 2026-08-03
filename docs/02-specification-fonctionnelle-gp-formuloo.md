@@ -1,9 +1,9 @@
 # Spécification Fonctionnelle Détaillée (SFD)
-# Formuloo Tracker — MVP V1.0
+# GP-Formuloo — MVP V1.0
 
 | Champ | Valeur |
 |---|---|
-| **Produit** | Formuloo Tracker (mini Jira interne) |
+| **Produit** | GP-Formuloo (mini Jira interne) |
 | **Type de document** | Spécification Fonctionnelle Détaillée (SFD / SRS) |
 | **Norme de référence** | Structure inspirée d'ISO/IEC/IEEE 29148:2018 (Requirements engineering) |
 | **Version** | 1.0 |
@@ -41,7 +41,7 @@
 ## 1. Introduction
 
 ### 1.1 Objet du document
-Ce document spécifie de manière exhaustive, non ambiguë et vérifiable les exigences fonctionnelles et non fonctionnelles du **MVP de Formuloo Tracker**, l'outil interne de gestion de projet destiné à remplacer Jira Cloud (plan Free) chez Formuloo. Il sert de référence contractuelle entre les parties prenantes métier et l'équipe de développement, et de base aux plans de tests.
+Ce document spécifie de manière exhaustive, non ambiguë et vérifiable les exigences fonctionnelles et non fonctionnelles du **MVP de GP-Formuloo**, l'outil interne de gestion de projet destiné à remplacer Jira Cloud (plan Free) chez Formuloo. Il sert de référence contractuelle entre les parties prenantes métier et l'équipe de développement, et de base aux plans de tests.
 
 ### 1.2 Portée (scope)
 - **Dans le périmètre** : les 34 exigences « Must » identifiées dans le document d'analyse (§3.2 du document parent) — comptes et permissions, projets, tickets, workflow, boards, agile (backlog/sprints/epics), recherche, reporting de base, notifications, automatisations pré-câblées, administration, import/export.
@@ -66,7 +66,7 @@ Ce document spécifie de manière exhaustive, non ambiguë et vérifiable les ex
 ## 2. Description générale
 
 ### 2.1 Vision produit
-> Pour **les équipes de Formuloo**, qui **subissent les limitations du plan gratuit de Jira** (10 utilisateurs, permissions absentes, quotas), **Formuloo Tracker** est **un outil web interne de gestion de projet agile** qui **fournit tickets, boards, sprints, permissions et rapports sans aucune limite de licence**. Contrairement à **Jira Free**, notre produit **appartient à Formuloo, est auto-hébergé, illimité en utilisateurs et gratuit à l'usage**.
+> Pour **les équipes de Formuloo**, qui **subissent les limitations du plan gratuit de Jira** (10 utilisateurs, permissions absentes, quotas), **GP-Formuloo** est **un outil web interne de gestion de projet agile** qui **fournit tickets, boards, sprints, permissions et rapports sans aucune limite de licence**. Contrairement à **Jira Free**, notre produit **appartient à Formuloo, est auto-hébergé, illimité en utilisateurs et gratuit à l'usage**.
 
 ### 2.2 Positionnement dans le SI
 Application web autonome (client web + API + base de données + stockage de fichiers), auto-hébergée sur l'infrastructure choisie par Formuloo. Aucune dépendance à un service Atlassian. L'import initial des données se fait par fichier CSV exporté depuis Jira.

@@ -1,10 +1,10 @@
-# Guide d'utilisation — Observabilité · Formuloo Tracker
+# Guide d'utilisation — Observabilité · GP-Formuloo
 
 | | |
 |---|---|
 | **Statut** | Guide d'exploitation — vivant |
 | **Version** | 0.1 — 18/07/2026 |
-| **Audience** | Développeurs (instrumentation) et exploitants (investigation) de Formuloo Tracker |
+| **Audience** | Développeurs (instrumentation) et exploitants (investigation) de GP-Formuloo |
 | **Objet** | Utiliser correctement la pile d'observabilité pour obtenir une **observabilité propre** du projet |
 | **Références** | DAT §8, ADR-006, plan `05-plan-implementation-observabilite`, `observability/README.md` (mécanique de la pile), document maître §10 |
 | **Structure** | Suit le standard **Diátaxis** : *Prérequis → Prise en main → Concepts → Tâches → Référence → Dépannage* |

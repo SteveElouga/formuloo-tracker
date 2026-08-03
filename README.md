@@ -1,8 +1,8 @@
-# Formuloo Tracker
+# GP-Formuloo
 
 **L'outil agile interne de Formuloo : boards, sprints, rapports et permissions — utilisateurs illimités, données maîtrisées, 0 licence.**
 
-Formuloo Tracker est un « mini-Jira » auto-hébergé qui remplace Jira Cloud (plan Free) sans ses limitations. Application web (Angular + PrimeNG), architecture microservices (Django + gRPC), API GraphQL, 100 % open source.
+GP-Formuloo est un « mini-Jira » auto-hébergé qui remplace Jira Cloud (plan Free) sans ses limitations. Application web (Angular + PrimeNG), architecture microservices (Django + gRPC), API GraphQL, 100 % open source.
 
 > **Statut : amorçage (avant FT-1).** Le dépôt est en cours d'initialisation. Ce README décrit la cible et la mise en route prévue. Voir l'avancement dans `docs/CONTEXT.md` §4.
 
@@ -39,12 +39,12 @@ Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires
 | Événements / Fichiers | **RabbitMQ** · **MinIO** (S3) |
 | Observabilité | OpenTelemetry · Grafana **Alloy** · **Prometheus / Loki / Tempo / Grafana** |
 | Exécution | **Docker Compose** → **Kubernetes (k3s)** · Traefik |
-| Outillage | **pnpm** · **uv** (Python 3.12) · **Node 20 LTS** · **Taskfile** · GitHub Actions |
+| Outillage | **pnpm** · **uv** (Python 3.12) · **Node 20 LTS** *(cible Node 24 — exige au préalable une montée d'Angular)* · **Taskfile** · **Nx** (frontend) · **GitLab CI** |
 
 ## Structure du monorepo
 
 ```
-formuloo-tracker/
+gp-formuloo/
 ├── protos/          # Contrats gRPC (source de vérité, versionnés, buf)
 ├── contracts/       # Schéma GraphQL publié (SDL) — contrat front/back (codegen & mocks)
 ├── services/        # Services Django + gRPC
@@ -72,7 +72,7 @@ formuloo-tracker/
 
 ```bash
 # 1. Cloner puis se placer à la racine
-git clone <url-du-depot> formuloo-tracker && cd formuloo-tracker
+git clone <url-du-depot> gp-formuloo && cd gp-formuloo
 
 # 1bis. Activer les hooks Git (OBLIGATOIRE — refuse les commits sur main/develop, valide les messages)
 sh scripts/install-hooks.sh
@@ -129,7 +129,7 @@ Grafana expose 7 dashboards (vue d'ensemble, par service, gateway/UX, PostgreSQL
 - [`docs/CONTEXT.md`](./docs/CONTEXT.md) — contexte projet complet
 - [`MEMORY.md`](./MEMORY.md) — **règles opératoires inviolables**
 - `docs/01…04` — analyse, spécification (SFD), architecture (DAT), backlog
-- `docs/Formuloo Tracker.html` — maquette haute-fidélité (référence UI)
+- `docs/GP-Formuloo.html` — maquette haute-fidélité (référence UI)
 
 ## Sécurité & secrets
 

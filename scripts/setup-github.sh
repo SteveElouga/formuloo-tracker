@@ -1,5 +1,5 @@
 #!/bin/sh
-# Formuloo Tracker — configuration GitHub (protection des branches main/develop).
+# GP-Formuloo — configuration GitHub (protection des branches main/develop).
 # À lancer SUR TA MACHINE (le pont cloud ne permet pas les opérations Git fiables).
 #
 # Prérequis :
@@ -10,10 +10,10 @@
 #   (Sur un dépôt privé en plan gratuit, l'appel échouerait en 403 → il faudrait GitHub Pro.)
 set -eu
 
-REPO_PATH="${1:-}"   # ex. "steve/formuloo-tracker" (owner/nom)
+REPO_PATH="${1:-}"   # ex. "steve/gp-formuloo" (owner/nom)
 if [ -z "$REPO_PATH" ]; then
   echo "Usage : sh scripts/setup-github.sh <owner>/<repo>"
-  echo "Exemple : sh scripts/setup-github.sh steve/formuloo-tracker"
+  echo "Exemple : sh scripts/setup-github.sh steve/gp-formuloo"
   exit 1
 fi
 
