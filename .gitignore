@@ -45,6 +45,7 @@ deploy/**/volumes/
 *.log
 
 # ─── IDE / OS ──────────────────────────────────────────────
+.obsidian/
 .idea/
 .vscode/
 .DS_Store

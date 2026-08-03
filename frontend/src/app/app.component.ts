@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   template: `<h1>{{ titre }}</h1>`
 })
 export class AppComponent {
-  protected readonly titre = 'Formuloo Tracker';
+  protected readonly titre = 'GP-Formuloo';
 }

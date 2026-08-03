@@ -1,4 +1,4 @@
-# https://taskfile.dev — Formuloo Tracker. Orchestrateur ; s'étoffe au fil des stories.
+# https://taskfile.dev — GP-Formuloo. Orchestrateur ; s'étoffe au fil des stories.
 version: '3'
 silent: true
 
@@ -48,8 +48,8 @@ tasks:
   build:
     desc: Build des images Docker (tag local)
     cmds:
-      - docker build -t formuloo/gateway-graphql:local services/gateway-graphql
-      - docker build -t formuloo/frontend:local frontend
+      - docker build -t gp-formuloo/gateway-graphql:local services/gateway-graphql
+      - docker build -t gp-formuloo/frontend:local frontend
 
   # ─── Infra locale (FT-2) ─────────────────────────────────
   up:

@@ -1,7 +1,7 @@
-# Formuloo Tracker — infrastructure locale (FT-2). Edge + état. `docker compose up`.
+# GP-Formuloo — infrastructure locale (FT-2). Edge + état. `docker compose up`.
 # Services applicatifs = FT-4/5 ; observabilité (profil obs) = FT-3.
 # Routage dynamique Traefik (provider Docker via docker-socket-proxy) = FT-E1/FT-4.
-name: formuloo
+name: gp-formuloo
 
 networks:
   edge:            # Traefik <-> Keycloak / gateway (exposé)

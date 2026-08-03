@@ -16,6 +16,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const h1: HTMLElement = fixture.nativeElement.querySelector('h1');
-    expect(h1.textContent).toContain('Formuloo Tracker');
+    expect(h1.textContent).toContain('GP-Formuloo');
   });
 });

@@ -1,8 +1,8 @@
-# Analyse exhaustive des fonctionnalités de Jira & Définition du MVP « Formuloo Tracker »
+# Analyse exhaustive des fonctionnalités de Jira & Définition du MVP « GP-Formuloo »
 
 | Champ | Valeur |
 |---|---|
-| **Projet** | Formuloo Tracker — Mini Jira interne |
+| **Projet** | GP-Formuloo — Mini Jira interne |
 | **Document** | Analyse fonctionnelle comparative & périmètre MVP |
 | **Version** | 1.0 |
 | **Date** | 03/07/2026 |
@@ -29,7 +29,7 @@ Formuloo utilise actuellement **Jira Cloud (plan Free)** pour la gestion de ses 
 | Support communautaire uniquement | Aucune garantie de service |
 
 ### 1.2 Objectif
-Développer un outil interne, **« Formuloo Tracker »**, couvrant les fonctionnalités essentielles de Jira **sans limitation de plan** : utilisateurs illimités, permissions complètes, automatisations libres, stockage maîtrisé.
+Développer un outil interne, **« GP-Formuloo »**, couvrant les fonctionnalités essentielles de Jira **sans limitation de plan** : utilisateurs illimités, permissions complètes, automatisations libres, stockage maîtrisé.
 
 ### 1.3 Méthodologie
 1. **Inventaire exhaustif** des fonctionnalités de Jira (Cloud), module par module (§2).
@@ -241,7 +241,7 @@ Développer un outil interne, **« Formuloo Tracker »**, couvrant les fonctionn
 
 ---
 
-## 3. Définition du MVP « Formuloo Tracker »
+## 3. Définition du MVP « GP-Formuloo »
 
 ### 3.1 Principe directeur
 > **Le MVP doit permettre à Formuloo de quitter Jira du jour au lendemain sans perte de capacité opérationnelle quotidienne**, en récupérant au passage les fonctions payantes critiques : utilisateurs illimités, rôles & permissions, archivage, stockage maîtrisé.
@@ -301,7 +301,7 @@ Développer un outil interne, **« Formuloo Tracker »**, couvrant les fonctionn
 
 ## 5. Annexe — Correspondance « ce que Formuloo récupère des plans payants »
 
-| Fonction payante chez Jira | Plan requis chez Atlassian | Dans Formuloo Tracker |
+| Fonction payante chez Jira | Plan requis chez Atlassian | Dans GP-Formuloo |
 |---|---|---|
 | Plus de 10 utilisateurs | Standard (≈ 7,9 $ /user/mois) | ✔ MVP, illimité |
 | Rôles & permissions | Standard | ✔ MVP |
@@ -314,4 +314,4 @@ Développer un outil interne, **« Formuloo Tracker »**, couvrant les fonctionn
 
 ---
 
-*Document lié : `02-specification-fonctionnelle-formuloo-tracker.md` (spécification fonctionnelle détaillée du MVP).*
+*Document lié : `02-specification-fonctionnelle-gp-formuloo.md` (spécification fonctionnelle détaillée du MVP).*

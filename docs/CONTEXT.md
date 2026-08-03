@@ -1,4 +1,4 @@
-# CONTEXT.md — Contexte du projet Formuloo Tracker
+# CONTEXT.md — Contexte du projet GP-Formuloo
 
 Ce document donne à toute personne (ou agent) rejoignant le projet le **contexte complet** en une lecture : pourquoi le projet existe, ce qu'on construit, comment c'est architecturé, et où en est le travail. Pour les **règles opératoires** (Git, sécurité), voir `MEMORY.md`. Pour la **prise en main technique**, voir `README.md`.
 
@@ -8,9 +8,9 @@ Ce document donne à toute personne (ou agent) rejoignant le projet le **context
 
 Formuloo utilise **Jira Cloud (plan Free)**, dont les limites freinent l'équipe : **10 utilisateurs maximum**, **aucun rôle ni permission** (tout le monde peut tout faire), **100 exécutions d'automatisation/mois**, notifications e-mail plafonnées, pas d'archivage de projet, stockage limité à 2 Go.
 
-**Formuloo Tracker** est l'outil interne qui remplace Jira **sans limitation de plan** : utilisateurs illimités, rôles et permissions complets, automatisations libres, **données auto-hébergées et maîtrisées**, **coût de licence nul** (stack 100 % open source).
+**GP-Formuloo** est l'outil interne qui remplace Jira **sans limitation de plan** : utilisateurs illimités, rôles et permissions complets, automatisations libres, **données auto-hébergées et maîtrisées**, **coût de licence nul** (stack 100 % open source).
 
-> **Vision** — Pour les équipes de Formuloo qui subissent les limites du plan gratuit de Jira, Formuloo Tracker est un outil web interne de gestion de projet agile qui fournit tickets, boards, sprints, permissions et rapports **sans aucune limite de licence**, auto-hébergé et gratuit à l'usage.
+> **Vision** — Pour les équipes de Formuloo qui subissent les limites du plan gratuit de Jira, GP-Formuloo est un outil web interne de gestion de projet agile qui fournit tickets, boards, sprints, permissions et rapports **sans aucune limite de licence**, auto-hébergé et gratuit à l'usage.
 
 ---
 
@@ -90,10 +90,10 @@ Les décisions sont tracées en **ADR-001→020** dans le DAT (`03-…md`).
 | Réf | Fichier | Contenu |
 |---|---|---|
 | [R1] | `01-analyse-fonctionnalites-jira-et-mvp.md` | Inventaire Jira, priorisation MoSCoW, périmètre MVP |
-| [R2] | `02-specification-fonctionnelle-formuloo-tracker.md` | Exigences EF/RG/ENF, modèle de données, permissions |
-| [R3] | `03-architecture-technique-formuloo-tracker.md` | Architecture, ADR-001→020, observabilité, déploiement, design system |
-| [R4] | `04-backlog-mvp-formuloo-tracker.md` | Epics, 65 user stories, plan de 10 sprints, inventaire des écrans |
-| [R5] | `Formuloo Tracker.html` | Maquette haute-fidélité (23 écrans, design system) |
+| [R2] | `02-specification-fonctionnelle-gp-formuloo.md` | Exigences EF/RG/ENF, modèle de données, permissions |
+| [R3] | `03-architecture-technique-gp-formuloo.md` | Architecture, ADR-001→020, observabilité, déploiement, design system |
+| [R4] | `04-backlog-mvp-gp-formuloo.md` | Epics, 65 user stories, plan de 10 sprints, inventaire des écrans |
+| [R5] | `GP-Formuloo.html` | Maquette haute-fidélité (23 écrans, design system) |
 | — | `MEMORY.md` | **Règles opératoires inviolables** (Git, sécurité, non-contournement) |
 | — | `README.md` | Prise en main technique du dépôt |
 
