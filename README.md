@@ -39,7 +39,7 @@ Le MVP couvre comptes & permissions, projets, tickets (hiérarchie, commentaires
 | Événements / Fichiers | **RabbitMQ** · **MinIO** (S3) |
 | Observabilité | OpenTelemetry · Grafana **Alloy** · **Prometheus / Loki / Tempo / Grafana** |
 | Exécution | **Docker Compose** → **Kubernetes (k3s)** · Traefik |
-| Outillage | **pnpm** · **uv** (Python 3.12) · **Node 24 LTS** · **Taskfile** · **Nx** (frontend) · **GitLab CI** |
+| Outillage | **pnpm** · **uv** (Python 3.12) · **Node 20 LTS** *(cible Node 24 — exige au préalable une montée d'Angular)* · **Taskfile** · **Nx** (frontend) · **GitLab CI** |
 
 ## Structure du monorepo
 
